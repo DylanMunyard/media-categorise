@@ -4,8 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "npm run build:live",
+    "start": "npm run build:live -- -f Better.Call.Saul.S06E07.1080p.WEB.H264-CAKES --srcdir /home/dylan/projects/",
     "build": "tsc -p .",
+    "postbuild": "cp package.json lib/package.json && cd lib && npm install --only=production",
     "build:live": "nodemon --watch 'src/**/*.ts' --exec \"ts-node\" src/app.ts"
   },
   "keywords": [],
@@ -13,11 +14,13 @@
   "license": "ISC",
   "devDependencies": {
     "@types/node": "^17.0.35",
+    "@types/yargs": "^17.0.10",
     "nodemon": "^2.0.16",
     "ts-node": "^10.8.0",
     "typescript": "^4.6.4"
   },
   "dependencies": {
-    "parse-torrent-name": "^0.5.4"
+    "parse-torrent-name": "^0.5.4",
+    "yargs": "^17.5.1"
   }
 }
