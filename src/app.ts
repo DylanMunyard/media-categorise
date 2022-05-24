@@ -3,7 +3,6 @@ import ptn, { Tv, Movie } from 'parse-torrent-name';
 import yargs from 'yargs';
 import * as path from 'path';
 import { exec, ExecException } from 'child_process';
-import { match } from 'assert';
 
 /* Execute a shell command and wrap the std outs in a promise */
 let shell = (cmd: string) : Promise<string> => {
@@ -19,6 +18,7 @@ let shell = (cmd: string) : Promise<string> => {
     });
 }
 
+/* Return files from directory matching pattern */
 let glob = (dir: string, pattern: RegExp) : Promise<string[]> => {
     return new Promise<string[]>((resolve, reject) => {
         fs.readdir(dir, (err, files) => {
@@ -36,7 +36,8 @@ yargs(process.argv.slice(2))
 .options({
     srcdir: { alias: 'sd', type: 'string', demandOption: true, desc: 'The source folder to copy from' },
     src: { alias: 'f', type: 'string', demandOption: true, desc: 'The item to copy (file or folder)' },
-    staging: { alias: 'd', type: 'string', default: '/media/toshiba4tb/staging', demandOption: true, desc: 'Target folder' }
+    staging: { alias: 'd', type: 'string', default: '/media/toshiba4tb/staging', demandOption: true, desc: 'Target folder' },
+    library: { alias: 'l', type: 'string', default: '/media/toshiba4tb/plex', demandOption: true, desc: 'Library folder' }
 })
 .help()
 .parseSync();
@@ -97,20 +98,19 @@ shell(`rm -rf '${dest}' && cp -r '${src}' '${dest}'`)
     // Remove excess whitespace
     details.title = details.title.trim();
     
-    let library = "/media/server";
     let tv = details as Tv;
     let movie = details as Movie;
     let mv_cmd = '';
     if (tv.season) {
-        library = `${library}/tv`;
+        argv.library = `${argv.library}/tv`;
         if (tv.episode) {
-            mv_cmd = `mkdir -p '${library}/${tv.title}/Season 0${tv.season}' && mv '${dest}/'* '${library}/${tv.title}/Season 0${tv.season}/'`;
+            mv_cmd = `mkdir -p '${argv.library}/${tv.title}/Season 0${tv.season}' && mv '${dest}/'* '${argv.library}/${tv.title}/Season 0${tv.season}/'`;
         } else {
-            mv_cmd = `mv '${dest}' '${library}/${tv.title}/Season 0${tv.season}'`;
+            mv_cmd = `mv '${dest}' '${argv.library}/${tv.title}/Season 0${tv.season}'`;
         }
     } else {
-        library = `${library}/movies`;
-        mv_cmd = `mv '${dest}' '${library}/${movie.title}'`;
+        argv.library = `${argv.library}/movies`;
+        mv_cmd = `mv '${dest}' '${argv.library}/${movie.title}'`;
     }
 
     shell(mv_cmd)
