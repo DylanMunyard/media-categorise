@@ -37,17 +37,23 @@ yargs(process.argv.slice(2))
     srcdir: { alias: 'sd', type: 'string', demandOption: true, desc: 'The source folder to copy from' },
     src: { alias: 'f', type: 'string', demandOption: true, desc: 'The item to copy (file or folder)' },
     staging: { alias: 'd', type: 'string', default: '/media/toshiba4tb/staging', demandOption: true, desc: 'Target folder' },
-    library: { alias: 'l', type: 'string', default: '/media/toshiba4tb/plex', demandOption: true, desc: 'Library folder' }
+    library: { alias: 'l', type: 'string', default: '/media/toshiba4tb/plex', demandOption: true, desc: 'Library folder' },
+    usenet: { type: 'boolean', default: false, demandOption: false, desc: 'Source from Usenet' }
 })
 .help()
 .parseSync();
 
 let src = path.join(argv.srcdir, argv.src);
+if (argv.usenet) {
+    src = argv.srcdir;
+}
 let dest = path.join(argv.staging, argv.src);
+let sourceUsenet = argv.usenet;
+let sourceCopy = `${(sourceUsenet ? `mv '${src}' '${argv.staging}'` : `cp -r '${src}' '${dest}'`)}`;
 
-shell(`rm -rf '${dest}' && cp -r '${src}' '${dest}'`)
+shell(`rm -rf '${dest}' && ${sourceCopy}`)
 .catch((reason: string) => {
-    console.error(`Copying ${src} to ${dest} failed: ${reason}`);
+    console.error(`Error ${sourceCopy}: ${reason}`);
     process.exit();
 })
 .then(_ => {
@@ -104,7 +110,12 @@ shell(`rm -rf '${dest}' && cp -r '${src}' '${dest}'`)
     if (tv.season) {
         argv.library = `${argv.library}/tv`;
         if (tv.episode) {
-            mv_cmd = `mkdir -p '${argv.library}/${tv.title}/Season 0${tv.season}' && mv '${dest}/'* '${argv.library}/${tv.title}/Season 0${tv.season}/'`;
+            // For torrents move the contents, for usenet move the folder
+            let source = `'${dest}/'*`;
+            if (sourceUsenet) {
+                source = `'${dest}'`;
+            }
+            mv_cmd = `mkdir -p '${argv.library}/${tv.title}/Season 0${tv.season}' && mv ${source} '${argv.library}/${tv.title}/Season 0${tv.season}/'`;
         } else {
             mv_cmd = `mv '${dest}' '${argv.library}/${tv.title}/Season 0${tv.season}'`;
         }
