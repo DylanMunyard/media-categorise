@@ -76,6 +76,7 @@ shell(`rm -rf '${dest}' && ${sourceCopy}`)
 })
 .then(rarFile => {
     if (rarFile) {
+        // Extract the archive
         return shell(`unrar e '${rarFile}' '${dest}' && rm -rf '${dest}/'*.r*`);
     } else {
         Promise.resolve("");
@@ -86,6 +87,7 @@ shell(`rm -rf '${dest}' && ${sourceCopy}`)
     process.exit();
 })
 .then(_ => {
+    // parse the file name
     let details = ptn(argv.src);
 
     // Clear every after season number: expecting <Title> s01 | <Title> s02-s03 | <Title> Season 1
@@ -107,6 +109,10 @@ shell(`rm -rf '${dest}' && ${sourceCopy}`)
     let tv = details as Tv;
     let movie = details as Movie;
     let mv_cmd = '';
+    if (tv.episode && !tv.season) {
+        // Episode without season number, assume season 1
+        tv.season = 1;
+    }
     if (tv.season) {
         argv.library = `${argv.library}/tv`;
         if (tv.episode) {
