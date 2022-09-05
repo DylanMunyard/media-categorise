@@ -44,9 +44,6 @@ yargs(process.argv.slice(2))
 .parseSync();
 
 let src = path.join(argv.srcdir, argv.src);
-if (argv.usenet) {
-    src = argv.srcdir;
-}
 let dest = path.join(argv.staging, argv.src);
 let sourceUsenet = argv.usenet;
 let sourceCopy = `${(sourceUsenet ? `mv '${src}' '${argv.staging}'` : `cp -r '${src}' '${dest}'`)}`;
