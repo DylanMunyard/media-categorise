@@ -1,8 +1,8 @@
 import * as fs from 'fs';
-import ptn, {Movie, Tv} from 'parse-torrent-name';
+import ptn, { Tv, Movie } from 'parse-torrent-name';
 import yargs from 'yargs';
 import * as path from 'path';
-import {exec, ExecException} from 'child_process';
+import { exec, ExecException } from 'child_process';
 
 /* Execute a shell command and wrap the std outs in a promise */
 let shell = (cmd: string) : Promise<string> => {
@@ -44,9 +44,6 @@ yargs(process.argv.slice(2))
 .parseSync();
 
 let src = path.join(argv.srcdir, argv.src);
-if (argv.usenet) {
-    src = argv.srcdir;
-}
 let dest = path.join(argv.staging, argv.src);
 let sourceUsenet = argv.usenet;
 let sourceCopy = `${(sourceUsenet ? `mv '${src}' '${argv.staging}'` : `cp -r '${src}' '${dest}'`)}`;
@@ -88,6 +85,7 @@ shell(`rm -rf '${dest}' && ${sourceCopy}`)
 })
 .then(rarFile => {
     if (rarFile) {
+        // Extract the archive
         return shell(`unrar e '${rarFile}' '${dest}' && rm -rf '${dest}/'*.r*`);
     } else {
         Promise.resolve("");
@@ -98,6 +96,7 @@ shell(`rm -rf '${dest}' && ${sourceCopy}`)
     process.exit();
 })
 .then(_ => {
+    // parse the file name
     let details = ptn(argv.src);
 
     // Clear every after season number: expecting <Title> s01 | <Title> s02-s03 | <Title> Season 1
@@ -118,7 +117,11 @@ shell(`rm -rf '${dest}' && ${sourceCopy}`)
     
     let tv = details as Tv;
     let movie = details as Movie;
-    let mv_cmd: string;
+    let mv_cmd : string;
+    if (tv.episode && !tv.season) {
+        // Episode without season number, assume season 1
+        tv.season = 1;
+    }
     if (tv.season) {
         argv.library = `${argv.library}/tv`;
         if (tv.episode) {
