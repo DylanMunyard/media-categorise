@@ -114,7 +114,8 @@ shell(`rm -rf '${dest}' && ${sourceCopy}`)
     
     // Remove excess whitespace
     details.title = details.title.trim();
-    
+
+    let is_dir : boolean = fs.lstatSync(dest).isDirectory();
     let tv = details as Tv;
     let movie = details as Movie;
     let mv_cmd : string;
@@ -125,9 +126,9 @@ shell(`rm -rf '${dest}' && ${sourceCopy}`)
     if (tv.season) {
         argv.library = `${argv.library}/tv`;
         if (tv.episode) {
-            // For torrents move the contents, for usenet move the folder
+            // For torrents move the contents, for usenet move the folder, for files move the file
             let source = `'${dest}/'*`;
-            if (sourceUsenet) {
+            if (sourceUsenet || !is_dir) {
                 source = `'${dest}'`;
             }
             mv_cmd = `mkdir -p '${argv.library}/${tv.title}/Season 0${tv.season}' && mv ${source} '${argv.library}/${tv.title}/Season 0${tv.season}/'`;
