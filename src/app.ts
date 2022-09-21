@@ -1,8 +1,8 @@
 import * as fs from 'fs';
-import ptn, { Tv, Movie } from 'parse-torrent-name';
+import ptn, {Movie, Tv} from 'parse-torrent-name';
 import yargs from 'yargs';
 import * as path from 'path';
-import { exec, ExecException } from 'child_process';
+import {exec, ExecException} from 'child_process';
 
 /* Execute a shell command and wrap the std outs in a promise */
 let shell = (cmd: string) : Promise<string> => {
@@ -57,8 +57,20 @@ shell(`rm -rf '${dest}' && ${sourceCopy}`)
     process.exit();
 })
 .then(_ => {
-    // Look for rar files
-    return glob(dest, /\.rar$/);
+    return new Promise<string[]>((resolve, reject) => {
+        fs.lstat(dest, (err, stats) => {
+            if (err) {
+                reject(err);
+                return;
+            }
+            if (stats.isDirectory()) {
+                // Look for rar files
+                glob(dest, /\.rar$/).then(resolve).catch(reject);
+            } else {
+                resolve([]);
+            }
+        });
+    });
 })
 .catch((reason: string) => {
     console.error(`Looking for .rar file in ${dest} failed: ${reason}`); 
@@ -106,7 +118,7 @@ shell(`rm -rf '${dest}' && ${sourceCopy}`)
     
     let tv = details as Tv;
     let movie = details as Movie;
-    let mv_cmd = '';
+    let mv_cmd: string;
     if (tv.season) {
         argv.library = `${argv.library}/tv`;
         if (tv.episode) {
