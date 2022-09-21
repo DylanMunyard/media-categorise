@@ -133,7 +133,7 @@ shell(`rm -rf '${dest}' && ${sourceCopy}`)
             }
             mv_cmd = `mkdir -p '${argv.library}/${tv.title}/Season 0${tv.season}' && mv ${source} '${argv.library}/${tv.title}/Season 0${tv.season}/'`;
         } else {
-            mv_cmd = `mv '${dest}' '${argv.library}/${tv.title}/Season 0${tv.season}'`;
+            mv_cmd = `mkdir -p '${argv.library}/${tv.title}/Season 0${tv.season}' && mv '${dest}' '${argv.library}/${tv.title}/Season 0${tv.season}'`;
         }
     } else {
         argv.library = `${argv.library}/movies`;
