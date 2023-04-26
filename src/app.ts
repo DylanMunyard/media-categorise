@@ -36,8 +36,8 @@ yargs(process.argv.slice(2))
 .options({
     srcdir: { alias: 'sd', type: 'string', demandOption: true, desc: 'The source folder to copy from' },
     src: { alias: 'f', type: 'string', demandOption: true, desc: 'The item to copy (file or folder)' },
-    staging: { alias: 'd', type: 'string', default: '/media/toshiba4tb/staging', demandOption: true, desc: 'Target folder' },
-    library: { alias: 'l', type: 'string', default: '/media/toshiba4tb/plex', demandOption: true, desc: 'Library folder' },
+    staging: { alias: 'd', type: 'string', default: '/media/seagate5tb/staging', demandOption: true, desc: 'Target folder' },
+    library: { alias: 'l', type: 'string', default: '/media/seagate5tb/plex', demandOption: true, desc: 'Library folder' },
     usenet: { type: 'boolean', default: false, demandOption: false, desc: 'Source from Usenet' }
 })
 .help()
